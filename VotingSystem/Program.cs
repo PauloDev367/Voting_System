@@ -2,6 +2,16 @@ using VotingSystem.Extensions;
 using VotingSystem.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll",
+        builder => builder.AllowAnyOrigin()
+            .AllowAnyHeader()
+            .AllowAnyMethod());
+});
+
+
+
 builder.Services.AddSignalR();
 builder.Services.AddSignalR(cfg=> {
     cfg.EnableDetailedErrors = true;
@@ -24,10 +34,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseCors("AllowAll");
 
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapHub<VotingHub>("/votes");
 app.MapControllers();
 
