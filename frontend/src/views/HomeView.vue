@@ -50,12 +50,10 @@ export default {
       } else {
         login(this.email, this.password).then((response) => {
           window.localStorage.setItem("token", response.data.token);
+          window.location.href = "/vote"
         }).catch((error) => {
-          if (error.response) {
-            console.log('Erro:', error.response.data);
-          } else {
-            console.log('Erro:', error.message);
-          }
+          alert("Erro ao tentar fazer login");
+          console.log('Erro:', error);
         });
       }
     }
