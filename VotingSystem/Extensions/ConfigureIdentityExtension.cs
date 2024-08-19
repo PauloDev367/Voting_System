@@ -26,7 +26,7 @@ public static class ConfigureIdentityExtension
             options.SigningCredentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha512);
             options.Expiration = int.Parse(jwtAppSettingOptions[nameof(JwtOptions.Expiration)] ?? "0");
         });
-// requisitos de senha
+
         builder.Services.Configure<IdentityOptions>(options =>
         {
             options.Password.RequireDigit = true;
@@ -35,7 +35,7 @@ public static class ConfigureIdentityExtension
             options.Password.RequireUppercase = true;
             options.Password.RequiredLength = 6;
         });
-// o que esperamos que o token tenha
+
         var tokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
