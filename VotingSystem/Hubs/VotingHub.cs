@@ -10,6 +10,7 @@ using VotingSystem.Entities;
 
 namespace VotingSystem.Hubs;
 
+[Authorize(Roles = "CLIENT")]
 public class VotingHub : Hub
 {
     private readonly UserManager<IdentityUser> _userManager;
@@ -20,8 +21,7 @@ public class VotingHub : Hub
         _userManager = userManager;
         _context = context;
     }
-
-    [Authorize]
+    
     public async Task AddVoteAsync(AddVoteRequest request)
     {
         var email = Context.User?.FindFirst(JwtRegisteredClaimNames.Email)?.Value;
@@ -47,4 +47,6 @@ public class VotingHub : Hub
         }
 
     }
+    public async Task GetVotesAsync(){}
+    
 }
