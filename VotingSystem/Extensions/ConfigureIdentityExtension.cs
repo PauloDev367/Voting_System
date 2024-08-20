@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using VotingSystem.Configurations;
 using VotingSystem.Data;
+using VotingSystem.Entities;
 
 namespace VotingSystem.Extensions;
 
@@ -11,7 +12,7 @@ public static class ConfigureIdentityExtension
 {
     public static void ConfigureIdentity(this WebApplicationBuilder builder)
     {
-        builder.Services.AddDefaultIdentity<IdentityUser>()
+        builder.Services.AddDefaultIdentity<User>()
             .AddRoles<IdentityRole>()
             .AddEntityFrameworkStores<AppDbContext>()
             .AddDefaultTokenProviders();

@@ -5,16 +5,17 @@ using Microsoft.Extensions.Options;
 using VotingSystem.Configurations;
 using VotingSystem.Dtos.Request;
 using VotingSystem.Dtos.Responses;
+using VotingSystem.Entities;
 
 namespace VotingSystem.Services;
 
 public class IdentityService
 {
-     private readonly SignInManager<IdentityUser> _signInManager;
-    private readonly UserManager<IdentityUser> _userManager; // geralmente usado p/ gerenciamente de users
+     private readonly SignInManager<User> _signInManager;
+    private readonly UserManager<User> _userManager; // geralmente usado p/ gerenciamente de users
     private readonly JwtOptions _jwtOptions;
 
-    public IdentityService(SignInManager<IdentityUser> signInManager, UserManager<IdentityUser> userManager, IOptions<JwtOptions> jwtOptions)
+    public IdentityService(SignInManager<User> signInManager, UserManager<User> userManager, IOptions<JwtOptions> jwtOptions)
     {
         _signInManager = signInManager;
         _userManager = userManager;
@@ -23,7 +24,7 @@ public class IdentityService
 
     public async Task<UserRegisterResponse> CadastrarUsuario(UserRegisterRequest usuarioCadastro)
     {
-        var identityUser = new IdentityUser
+        var identityUser = new User
         {
             UserName = usuarioCadastro.Email,
             Email = usuarioCadastro.Email,
@@ -86,7 +87,7 @@ public class IdentityService
         };
     }
 
-    private async Task<IList<Claim>> ObterClaims(IdentityUser user)
+    private async Task<IList<Claim>> ObterClaims(User user)
     {
         var claims = await _userManager.GetClaimsAsync(user);
         var roles = await _userManager.GetRolesAsync(user);
