@@ -6,7 +6,7 @@ using VotingSystem.Dtos.Responses;
 
 namespace VotingSystem.Hubs;
 
-[Authorize(Roles = "ADMIN")]
+[Authorize]
 public class AdminVotingHub : Hub
 {
     private readonly AppDbContext _context;

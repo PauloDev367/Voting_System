@@ -1,32 +1,35 @@
+using System.Text.Json.Serialization;
 using VotingSystem.Extensions;
 using VotingSystem.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddCors(options =>
+
+
+builder.Services.AddControllers().AddJsonOptions(opt =>
 {
-    options.AddPolicy("AllowAll",
-        builder => builder.AllowAnyOrigin()
-            .AllowAnyHeader()
-            .AllowAnyMethod());
+    opt.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+    opt.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault;
 });
-
-
 
 builder.Services.AddSignalR();
 builder.Services.AddSignalR(cfg=> {
     cfg.EnableDetailedErrors = true;
 });
 
-builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
 builder.ConfigureDbContext();
 builder.ConfigureAppDependencies();
 builder.ConfigureIdentity();
+builder.ConfigureAppCors();
+
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+
+app.UseCors();  
+
+app.UseStaticFiles();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -34,11 +37,14 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseCors("AllowAll");
+
+app.MapHub<VotingHub>("/votes");
+app.MapHub<AdminVotingHub>("/votes/admin");
 
 app.UseAuthentication();
 app.UseAuthorization();
-app.MapHub<VotingHub>("/votes");
+
 app.MapControllers();
 
 app.Run();
+

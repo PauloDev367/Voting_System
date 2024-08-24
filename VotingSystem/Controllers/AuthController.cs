@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VotingSystem.Dtos.Request;
 using VotingSystem.Services;
@@ -37,5 +38,12 @@ public class AuthController : ControllerBase
             return Ok(resultado);
 
         return Unauthorized(resultado);
+    }
+
+    [HttpGet]
+    [Authorize]
+    public async Task<IActionResult> Get()
+    {
+        return Ok("Rota normal");
     }
 }
