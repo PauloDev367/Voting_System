@@ -81,12 +81,10 @@ public static class ConfigureIdentityExtension
                 {
                     var accessToken = context.Request.Query["access_token"];
 
-                    // Se a solicitação for para o hub do SignalR
                     var path = context.HttpContext.Request.Path;
                     if (!string.IsNullOrEmpty(accessToken) &&
                         (path.StartsWithSegments("/votes")))
                     {
-                        // Token JWT será recuperado de um query string
                         context.Token = accessToken;
                     }
 
