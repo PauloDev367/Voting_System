@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using VotingSystem.Data;
 using VotingSystem.Dtos.Responses;
 using VotingSystem.Repositories;
+using VotingSystem.Services;
 
 namespace VotingSystem.Hubs;
 
@@ -14,30 +15,17 @@ public class AdminVotingHub : Hub
 {
     private readonly AppDbContext _context;
     private readonly UserRepository _userRepository;
-
-    public AdminVotingHub(AppDbContext context, UserRepository userRepository)
+    private readonly VotingService _votingService;
+    public AdminVotingHub(AppDbContext context, UserRepository userRepository, VotingService votingService)
     {
         _context = context;
         _userRepository = userRepository;
+        _votingService = votingService;
     }
 
     public async Task GetVoteInformationAsync()
     {
-        var votes = await _context.Votes.ToListAsync();
-        var totalVotes = votes.Count();
-        var users = await _context.Users.ToListAsync();
-        var totalUsers = users.Count();
-        var totalUsersVotes = users.Where(u => u.Voted != false).Count();
-        var totalUsersOnline = users.Where(u => u.IsOnline == true).ToList().Count();
-        var count = (totalVotes - totalUsersVotes);
-        var response = new VoteInformationResponse
-        {
-            TotalVotes = totalVotes,
-            TotalUsers = totalUsers,
-            TotalUsersThatVoted = totalUsersVotes < 0 ? 0 : totalUsersVotes,
-            TotalUsersOnline = totalUsersOnline,
-            TotalUsersThatNotVoted = count < 0 ? 0 : count,
-        };
+        var response = await _votingService.GetSystemOverviewAsync();
         await SendGroupMessage(response, "LoadSystemData");
     }
 
@@ -59,9 +47,7 @@ public class AdminVotingHub : Hub
         var userClaims = Context.User;
         var userId = userClaims.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         
-        var user = await _userRepository.GetOneByIdAsync(userId);
-        if(user != null)
-            await _userRepository.AddConnectionIdToUserAsync(user, connectionIdCurrent);
+        await _votingService.AddConnectionIdToUserAsync(userId, connectionIdCurrent);
     }
 
     private async Task SendGroupMessage(object message, string method)
