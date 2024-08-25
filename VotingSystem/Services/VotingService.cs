@@ -10,11 +10,15 @@ public class VotingService
 {
     private readonly AppDbContext _context;
     private readonly UserRepository _userRepository;
+    private readonly VotesRepository _voteRepository;
+    private readonly AgentRepository _agentRepository;
 
-    public VotingService(AppDbContext context, UserRepository userRepository)
+    public VotingService(AppDbContext context, UserRepository userRepository, VotesRepository voteRepository, AgentRepository agentRepository)
     {
         _context = context;
         _userRepository = userRepository;
+        _voteRepository = voteRepository;
+        _agentRepository = agentRepository;
     }
 
     public async Task<VoteInformationResponse> GetSystemOverviewAsync()
@@ -42,6 +46,12 @@ public class VotingService
         var user = await _userRepository.GetOneByIdAsync(userId);
         if(user != null)
             await _userRepository.AddConnectionIdToUserAsync(user, connectionId);
+    }
+
+    public async Task<List<VotesPerAgentResponse>> GetTotalVotesPerAgentsAsync()
+    {
+        var votes = await _agentRepository.GetAllAsync();
+        return votes.Select(v => new VotesPerAgentResponse(v)).ToList();
     }
     
 }

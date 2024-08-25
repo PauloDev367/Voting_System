@@ -29,32 +29,18 @@
     <div class="container">
       <div class="row">
         <div class="col-12 col-md-6">
-          <ul>
-            <li>
-              <span>Opção 1 - (30 votos)</span>
-              <button class="btn btn-sm btn-outline-danger">
-                <i class="fa-solid fa-trash-can"></i>
-              </button>
-            </li>
-            <li>
-              <span>Opção 2 - (30 votos)</span>
-              <button class="btn btn-sm btn-outline-danger">
-                <i class="fa-solid fa-trash-can"></i>
-              </button>
-            </li>
-            <li>
-              <span>Opção 3 - (30 votos)</span>
-              <button class="btn btn-sm btn-outline-danger">
-                <i class="fa-solid fa-trash-can"></i>
-              </button>
-            </li>
-            <li>
-              <span>Opção 4 - (30 votos)</span>
-              <button class="btn btn-sm btn-outline-danger">
-                <i class="fa-solid fa-trash-can"></i>
-              </button>
-            </li>
-          </ul>
+          <template v-if="agents.length > 0">
+            <ul>
+              <li v-for="agent in agents" :key="agent.id">
+                <span
+                  >{{ agent.AgentName }} - ({{ agent.TotalVotes }} votos)</span
+                >
+                <button class="btn btn-sm btn-outline-danger">
+                  <i class="fa-solid fa-trash-can"></i>
+                </button>
+              </li>
+            </ul>
+          </template>
           <button
             class="btn btn-sm btn-block btn-info"
             data-toggle="modal"
@@ -172,6 +158,8 @@ export default {
       totalUsersThatVoted: 0,
       totalUsersThatNotVoted: 0,
       totalUsersOnline: 0,
+      agents: [],
+      connectionActive: false,
     };
   },
   async mounted() {
@@ -187,11 +175,16 @@ export default {
 
     await this.connection
       .start()
-      .then(() => {})
+      .then(() => {
+        this.connectionActive = true;
+      })
       .catch((err) => console.error("Error while starting connection: ", err));
 
-    this.connection.invoke("AddConnectionIdToUser");
-    this.loadVotesData();
+    if (this.connectionActive == true) {
+      this.connection.invoke("AddConnectionIdToUser");
+      this.loadVotesData();
+      this.loadTotalVotesPerAgent();
+    }
   },
   methods: {
     vote() {
@@ -203,12 +196,17 @@ export default {
     loadVotesData() {
       this.connection.invoke("GetVoteInformationAsync");
       this.connection.on("LoadSystemData", (data) => {
-        console.log(data);
         this.totalVotes = data.totalVotes;
         this.totalUsers = data.totalUsers;
         this.totalUsersThatVoted = data.totalUsersThatVoted;
         this.totalUsersThatNotVoted = data.totalUsersThatNotVoted;
         this.totalUsersOnline = data.totalUsersOnline;
+      });
+    },
+    loadTotalVotesPerAgent() {
+      this.connection.invoke("GetTotalVotesPerAgentAsync");
+      this.connection.on("TotalPerAgent", (data) => {
+        this.agents = data;
       });
     },
   },

@@ -10,5 +10,7 @@ public static class ConfigureAppDependenciesExtension
         builder.Services.AddTransient<IdentityService>();
         builder.Services.AddTransient<UserRepository>();
         builder.Services.AddTransient<VotingService>();
+        builder.Services.AddTransient<AgentRepository>();
+        builder.Services.AddTransient<VotesRepository>();
     }
 }

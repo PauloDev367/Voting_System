@@ -29,6 +29,11 @@ public class AdminVotingHub : Hub
         await SendGroupMessage(response, "LoadSystemData");
     }
 
+    public async Task GetTotalVotesPerAgentAsync()
+    {
+        var total = await _votingService.GetTotalVotesPerAgentsAsync();
+        await SendGroupMessage(total, "TotalPerAgent");
+    }
     public async Task EndVoteAsync()
     {
     }
