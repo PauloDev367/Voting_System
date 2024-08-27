@@ -85,7 +85,17 @@ public class VotingService
         {
             throw new Exception("You need to stop your vote to restart");
         }
-
         await _agentRepository.SetAllTotalVotesToZero();
+    }
+
+    public async Task<Agent?> ShowVoteWinnerAsync()
+    {
+        if ((await _systemStatusesRepository.VoteIsActiveAsync()) != false)
+        {
+            throw new Exception("You need to stop your vote to get the winner");
+        }
+
+        var winner = await _agentRepository.GetMoreVotedAgentAsync();
+        return winner;
     }
 }

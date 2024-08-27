@@ -82,7 +82,7 @@
               </button>
             </div>
             <div class="col-12 mt-2">
-              <button class="btn btn-block btn-warning">
+              <button class="btn btn-block btn-warning" @click="getWinner">
                 <i class="fa-solid fa-trophy"></i> Anunciar ganhador
               </button>
             </div>
@@ -218,6 +218,26 @@ export default {
           this.connection.invoke("RestartVoteAsync");
         } else {
           alert("Você precisa pausar a votação para zerar");
+        }
+      }
+    },
+    getWinner() {
+      const confirm = window.confirm("Deseja ver o ganhador da votação?");
+      if (confirm) {
+        if (this.voteStatus == false) {
+          this.connection.invoke("ShowWinnerAsync");
+          this.connection.on("WinnerSelected", (winner) => {
+            console.log(winner);
+            alert(
+              "Ganhador buscado" +
+                winner.agentName +
+                " com um total de " +
+                winner.totalVotes +
+                " votos"
+            );
+          });
+        } else {
+          alert("Você precisa pausar a votação para ver o ganhador");
         }
       }
     },

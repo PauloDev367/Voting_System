@@ -69,8 +69,11 @@ public class AdminVotingHub : Hub
         await GetTotalVotesPerAgentAsync();
     }
 
-    public async Task ShowAwardAsync()
+    public async Task ShowWinnerAsync()
     {
+        var winner = await _votingService.ShowVoteWinnerAsync();
+        if (winner != null)
+            await Clients.All.SendAsync("WinnerSelected", new VotesPerAgentResponse(winner));
     }
 
     public async Task AddConnectionIdToUser()
