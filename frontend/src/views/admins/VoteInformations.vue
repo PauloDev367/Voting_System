@@ -35,7 +35,10 @@
                 <span
                   >{{ agent.agentName }} - ({{ agent.totalVotes }} votos)</span
                 >
-                <button class="btn btn-sm btn-outline-danger" @click="removeAgent(agent.agentId)">
+                <button
+                  class="btn btn-sm btn-outline-danger"
+                  @click="removeAgent(agent.agentId)"
+                >
                   <i class="fa-solid fa-trash-can"></i>
                 </button>
               </li>
@@ -50,24 +53,32 @@
           </button>
         </div>
         <div class="col-12 col-md-6 text-center mt-4">
-          <div class="row">
-            <div class="col-12 col-md-6">
-              <button class="btn btn-block btn-warning">
-                <i class="fa-solid fa-lock"></i> Finalizar votação
-              </button>
-            </div>
-            <div class="col-12 col-md-6">
-              <button class="btn btn-block btn-success">
+          <div class="row justify-content-center">
+            <div class="col-12">
+              <button
+                class="btn btn-block btn-success"
+                @click="openVote"
+                :disabled="voteStatus != false"
+              >
                 <i class="fa-solid fa-lock-open"></i> Abrir votação
               </button>
             </div>
-            <div class="col-12 col-md-6 mt-2">
+            <div class="col-12 mt-2">
+              <button
+                class="btn btn-block btn-secondary"
+                @click="stopVote"
+                :disabled="voteStatus != true"
+              >
+                <i class="fa-solid fa-lock"></i> Pausar votação
+              </button>
+            </div>
+            <div class="col-12 mt-2">
               <button class="btn btn-block btn-info">
                 <i class="fa-brands fa-creative-commons-zero"></i> Zerar votação
               </button>
             </div>
-            <div class="col-12 col-md-6 mt-2">
-              <button class="btn btn-block btn-secondary">
+            <div class="col-12 mt-2">
+              <button class="btn btn-block btn-warning">
                 <i class="fa-solid fa-trophy"></i> Anunciar ganhador
               </button>
             </div>
@@ -142,6 +153,7 @@ export default {
       totalUsersOnline: 0,
       agents: [],
       connectionActive: false,
+      voteStatus: null,
     };
   },
   async mounted() {
@@ -167,6 +179,7 @@ export default {
       this.loadVotesData();
       this.loadTotalVotesPerAgent();
       this.loadNewAgent();
+      this.loadNewVoteStatus();
     }
   },
   methods: {
@@ -176,13 +189,30 @@ export default {
         alert("Enviando voto");
       }
     },
+    openVote() {
+      const confirm = window.confirm("Deseja abrir a votação?");
+      if (confirm) {
+        this.connection.invoke("OpenVoteAsync");
+      }
+    },
+    stopVote() {
+      const confirm = window.confirm("Deseja parar a votação?");
+      if (confirm) {
+        this.connection.invoke("StopVoteAsync");
+      }
+    },
     removeAgent(agentId) {
       const confirm = window.confirm("Deseja remover esse representante?");
 
       if (confirm) {
-        console.log(agentId);
         this.connection.invoke("RemoveAgentAsync", agentId);
       }
+    },
+    loadNewVoteStatus() {
+      this.connection.on("VoteStatusChanged", (newStatus) => {
+        this.voteStatus = newStatus;
+        console.log(this.voteStatus);
+      });
     },
     loadNewAgent() {
       this.connection.on("NewAgentRegistered", (data) => {
@@ -197,6 +227,7 @@ export default {
         this.totalUsersThatVoted = data.totalUsersThatVoted;
         this.totalUsersThatNotVoted = data.totalUsersThatNotVoted;
         this.totalUsersOnline = data.totalUsersOnline;
+        this.voteStatus = data.voteStatus;
       });
     },
     loadTotalVotesPerAgent() {
@@ -233,5 +264,8 @@ main ul li {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 10px;
+}
+button:disabled {
+  cursor: not-allowed;
 }
 </style>
