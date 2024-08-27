@@ -77,6 +77,15 @@ public class VotingService
             throw new Exception("Agent not found");
 
         await _agentRepository.RemoveAsync(agent);
+    }
 
+    public async Task RestartVoteAsync()
+    {
+        if ((await _systemStatusesRepository.VoteIsActiveAsync()) != false)
+        {
+            throw new Exception("You need to stop your vote to restart");
+        }
+
+        await _agentRepository.SetAllTotalVotesToZero();
     }
 }

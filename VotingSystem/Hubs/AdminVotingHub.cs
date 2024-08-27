@@ -65,6 +65,8 @@ public class AdminVotingHub : Hub
 
     public async Task RestartVoteAsync()
     {
+        await _votingService.RestartVoteAsync();
+        await GetTotalVotesPerAgentAsync();
     }
 
     public async Task ShowAwardAsync()

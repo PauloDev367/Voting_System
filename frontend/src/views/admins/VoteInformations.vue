@@ -73,7 +73,11 @@
               </button>
             </div>
             <div class="col-12 mt-2">
-              <button class="btn btn-block btn-info">
+              <button
+                class="btn btn-block btn-info"
+                @click="restartVote"
+                :disabled="voteStatus != false"
+              >
                 <i class="fa-brands fa-creative-commons-zero"></i> Zerar votação
               </button>
             </div>
@@ -203,15 +207,23 @@ export default {
     },
     removeAgent(agentId) {
       const confirm = window.confirm("Deseja remover esse representante?");
-
       if (confirm) {
         this.connection.invoke("RemoveAgentAsync", agentId);
+      }
+    },
+    restartVote() {
+      const confirm = window.confirm("Deseja zerar as votações?");
+      if (confirm) {
+        if (this.voteStatus == false) {
+          this.connection.invoke("RestartVoteAsync");
+        } else {
+          alert("Você precisa pausar a votação para zerar");
+        }
       }
     },
     loadNewVoteStatus() {
       this.connection.on("VoteStatusChanged", (newStatus) => {
         this.voteStatus = newStatus;
-        console.log(this.voteStatus);
       });
     },
     loadNewAgent() {

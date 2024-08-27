@@ -38,4 +38,17 @@ public class AgentRepository
         _context.Agents.Remove(agent);
         await _context.SaveChangesAsync();
     }
+
+    public async Task SetAllTotalVotesToZero()
+    {
+        var votes = await _context.Agents
+            .Include(a => a.Votes)
+            .ToListAsync();
+
+        foreach (var vote in votes)
+        {
+            vote.Votes.Clear();
+        }
+        await _context.SaveChangesAsync();
+    }
 }
