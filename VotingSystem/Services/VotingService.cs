@@ -13,7 +13,8 @@ public class VotingService
     private readonly VotesRepository _voteRepository;
     private readonly AgentRepository _agentRepository;
 
-    public VotingService(AppDbContext context, UserRepository userRepository, VotesRepository voteRepository, AgentRepository agentRepository)
+    public VotingService(AppDbContext context, UserRepository userRepository, VotesRepository voteRepository,
+        AgentRepository agentRepository)
     {
         _context = context;
         _userRepository = userRepository;
@@ -44,7 +45,7 @@ public class VotingService
     public async Task AddConnectionIdToUserAsync(string userId, string connectionId)
     {
         var user = await _userRepository.GetOneByIdAsync(userId);
-        if(user != null)
+        if (user != null)
             await _userRepository.AddConnectionIdToUserAsync(user, connectionId);
     }
 
@@ -53,5 +54,25 @@ public class VotingService
         var votes = await _agentRepository.GetAllAsync();
         return votes.Select(v => new VotesPerAgentResponse(v)).ToList();
     }
-    
+
+    public async Task<Agent> AddNewAgentAsync(string agentName)
+    {
+        var agent = new Agent
+        {
+            Name = agentName
+        };
+
+        await _agentRepository.SaveAgentAsync(agent);
+        return agent;
+    }
+
+    public async Task RemoveAgentAsync(Guid id)
+    {
+        var agent = await _agentRepository.GetOneByIdAsync(id);
+        if (agent == null)
+            throw new Exception("Agent not found");
+
+        await _agentRepository.RemoveAsync(agent);
+
+    }
 }

@@ -15,6 +15,27 @@ public class AgentRepository
 
     public async Task<List<Agent>> GetAllAsync()
     {
-        return await _context.Agents.ToListAsync();
+        return await _context.Agents
+            .Include(a => a.Votes)
+            .ToListAsync();
+    }
+
+    public async Task<Agent> SaveAgentAsync(Agent agent)
+    {
+        await _context.Agents.AddAsync(agent);
+        await _context.SaveChangesAsync();
+        return agent;
+    }
+
+    public async Task<Agent?> GetOneByIdAsync(Guid id)
+    {
+        return await _context.Agents.FirstOrDefaultAsync(x => x.Id.Equals(id));
+    }
+
+
+    public async Task RemoveAsync(Agent agent)
+    {
+        _context.Agents.Remove(agent);
+        await _context.SaveChangesAsync();
     }
 }

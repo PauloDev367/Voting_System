@@ -4,7 +4,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using VotingSystem.Data;
+using VotingSystem.Dtos.Request;
 using VotingSystem.Dtos.Responses;
+using VotingSystem.Entities;
 using VotingSystem.Repositories;
 using VotingSystem.Services;
 
@@ -34,6 +36,20 @@ public class AdminVotingHub : Hub
         var total = await _votingService.GetTotalVotesPerAgentsAsync();
         await SendGroupMessage(total, "TotalPerAgent");
     }
+
+    public async Task AddNewAgent(NewAgentRequest request)
+    {
+        var agent = await _votingService.AddNewAgentAsync(request.AgentName);
+        var response = new VotesPerAgentResponse(agent);
+        await Clients.All.SendAsync("NewAgentRegistered", response);
+    }
+
+    public async Task RemoveAgentAsync(string agentId)
+    {
+        await _votingService.RemoveAgentAsync(new Guid(agentId));
+        await GetTotalVotesPerAgentAsync();
+    }
+
     public async Task EndVoteAsync()
     {
     }
@@ -51,7 +67,7 @@ public class AdminVotingHub : Hub
         var connectionIdCurrent = Context.ConnectionId;
         var userClaims = Context.User;
         var userId = userClaims.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        
+
         await _votingService.AddConnectionIdToUserAsync(userId, connectionIdCurrent);
     }
 
