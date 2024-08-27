@@ -30,7 +30,7 @@ public class VotingService
         var totalVotes = votes.Count();
         var users = await _context.Users.ToListAsync();
         var totalUsers = users.Count();
-        var totalUsersVotes = users.Where(u => u.Voted != false).Count();
+        var totalUsersVotes = users.Where(u => u.Voted == true).ToList().Count();
         var totalUsersOnline = users.Where(u => u.IsOnline == true).ToList().Count();
         var count = (totalVotes - totalUsersVotes);
         var voteStatus = await _systemStatusesRepository.VoteIsActiveAsync();
