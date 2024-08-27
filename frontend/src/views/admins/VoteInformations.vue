@@ -33,9 +33,9 @@
             <ul>
               <li v-for="agent in agents" :key="agent.id">
                 <span
-                  >{{ agent.AgentName }} - ({{ agent.TotalVotes }} votos)</span
+                  >{{ agent.agentName }} - ({{ agent.totalVotes }} votos)</span
                 >
-                <button class="btn btn-sm btn-outline-danger">
+                <button class="btn btn-sm btn-outline-danger" @click="removeAgent(agent.agentId)">
                   <i class="fa-solid fa-trash-can"></i>
                 </button>
               </li>
@@ -116,30 +116,9 @@
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
-          <div class="modal-body">
-            <form action="">
-              <div class="form-group">
-                <label for="">Nome:</label>
-                <input type="text" class="form-control" />
-              </div>
-              <div class="form-group">
-                <label for="">E-mail:</label>
-                <input type="text" class="form-control" />
-              </div>
-            </form>
-          </div>
-          <div class="modal-footer">
-            <button
-              type="button"
-              class="btn btn-sm btn-secondary"
-              data-dismiss="modal"
-            >
-              Fechar
-            </button>
-            <button type="button" class="btn btn-sm btn-info">
-              <i class="fa-regular fa-square-plus"></i> Adicionar
-            </button>
-          </div>
+          <FormRegisterAgentComponent
+            :connection="connection"
+          ></FormRegisterAgentComponent>
         </div>
       </div>
     </div>
@@ -148,8 +127,11 @@
 
 
 <script>
+import FormRegisterAgentComponent from "@/components/FormRegisterAgentComponent.vue";
+
 export default {
   name: "VoteInformations",
+  components: { FormRegisterAgentComponent },
   data() {
     return {
       connection: null,
@@ -184,6 +166,7 @@ export default {
       this.connection.invoke("AddConnectionIdToUser");
       this.loadVotesData();
       this.loadTotalVotesPerAgent();
+      this.loadNewAgent();
     }
   },
   methods: {
@@ -192,6 +175,19 @@ export default {
       if (confirm) {
         alert("Enviando voto");
       }
+    },
+    removeAgent(agentId) {
+      const confirm = window.confirm("Deseja remover esse representante?");
+
+      if (confirm) {
+        console.log(agentId);
+        this.connection.invoke("RemoveAgentAsync", agentId);
+      }
+    },
+    loadNewAgent() {
+      this.connection.on("NewAgentRegistered", (data) => {
+        this.agents.push(data);
+      });
     },
     loadVotesData() {
       this.connection.invoke("GetVoteInformationAsync");
