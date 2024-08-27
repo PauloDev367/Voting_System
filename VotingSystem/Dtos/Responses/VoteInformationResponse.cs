@@ -7,4 +7,5 @@ public class VoteInformationResponse
     public int TotalUsersThatVoted { get; set; }
     public int TotalUsersThatNotVoted { get; set; }
     public int TotalUsersOnline { get; set; }
+    public bool VoteStatus { get; set; }
 }

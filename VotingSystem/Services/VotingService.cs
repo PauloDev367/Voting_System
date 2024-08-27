@@ -12,14 +12,16 @@ public class VotingService
     private readonly UserRepository _userRepository;
     private readonly VotesRepository _voteRepository;
     private readonly AgentRepository _agentRepository;
+    private readonly SystemStatusesRepository _systemStatusesRepository;
 
     public VotingService(AppDbContext context, UserRepository userRepository, VotesRepository voteRepository,
-        AgentRepository agentRepository)
+        AgentRepository agentRepository, SystemStatusesRepository systemStatusesRepository)
     {
         _context = context;
         _userRepository = userRepository;
         _voteRepository = voteRepository;
         _agentRepository = agentRepository;
+        _systemStatusesRepository = systemStatusesRepository;
     }
 
     public async Task<VoteInformationResponse> GetSystemOverviewAsync()
@@ -31,6 +33,7 @@ public class VotingService
         var totalUsersVotes = users.Where(u => u.Voted != false).Count();
         var totalUsersOnline = users.Where(u => u.IsOnline == true).ToList().Count();
         var count = (totalVotes - totalUsersVotes);
+        var voteStatus = await _systemStatusesRepository.VoteIsActiveAsync();
         var response = new VoteInformationResponse()
         {
             TotalVotes = totalVotes,
@@ -38,6 +41,7 @@ public class VotingService
             TotalUsersThatVoted = totalUsersVotes < 0 ? 0 : totalUsersVotes,
             TotalUsersOnline = totalUsersOnline,
             TotalUsersThatNotVoted = count < 0 ? 0 : count,
+            VoteStatus = voteStatus
         };
         return response;
     }

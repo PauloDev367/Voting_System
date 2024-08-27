@@ -9,6 +9,7 @@ namespace VotingSystem.Data;
 public class AppDbContext : IdentityDbContext
 {
     public DbSet<Vote> Votes { get; set; }
+    public DbSet<SystemStatus> SystemStatuses { get; set; }
     public DbSet<User> Users { get; set; }
     public DbSet<Agent> Agents { get; set; }
     public DbSet<HubId> HubIds { get; set; }

@@ -18,11 +18,13 @@ public class AdminVotingHub : Hub
     private readonly AppDbContext _context;
     private readonly UserRepository _userRepository;
     private readonly VotingService _votingService;
-    public AdminVotingHub(AppDbContext context, UserRepository userRepository, VotingService votingService)
+    private readonly SystemStatusesRepository _systemStatusesRepository;
+    public AdminVotingHub(AppDbContext context, UserRepository userRepository, VotingService votingService, SystemStatusesRepository systemStatusesRepository)
     {
         _context = context;
         _userRepository = userRepository;
         _votingService = votingService;
+        _systemStatusesRepository = systemStatusesRepository;
     }
 
     public async Task GetVoteInformationAsync()
@@ -50,8 +52,15 @@ public class AdminVotingHub : Hub
         await GetTotalVotesPerAgentAsync();
     }
 
-    public async Task EndVoteAsync()
+    public async Task OpenVoteAsync()
     {
+        await _systemStatusesRepository.ChangeVoteStatusAsync(true);
+        await Clients.All.SendAsync("VoteStatusChanged", true);
+    }
+    public async Task StopVoteAsync()
+    {
+        await _systemStatusesRepository.ChangeVoteStatusAsync(false);
+        await Clients.All.SendAsync("VoteStatusChanged", false);
     }
 
     public async Task RestartVoteAsync()
