@@ -67,4 +67,15 @@ public class UserRepository
         _context.Users.Update(user);
         await _context.SaveChangesAsync();
     }
+    public async Task SetAllUserVoteAsFalseAsync()
+    {
+        var users = await _context.Users.ToListAsync();
+        foreach (var user in users)
+        {
+            user.Voted = false;
+        }
+
+        _context.Users.UpdateRange(users);
+        await _context.SaveChangesAsync();
+    }
 }

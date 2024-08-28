@@ -48,7 +48,7 @@ public class VotingService
     public async Task<VotesInfoToClientResponse> GetClientInfo()
     {
         var users = await _context.Users.ToListAsync();
-        var totalVotes = users.Where(u => u.Voted == true).ToList().Count();;
+        var totalVotes = users.Where(u => u.Voted == true).ToList().Count(); ;
         var voteIsOpen = await _systemStatusesRepository.VoteIsActiveAsync();
 
         return new VotesInfoToClientResponse
@@ -99,6 +99,7 @@ public class VotingService
             throw new Exception("You need to stop your vote to restart");
         }
         await _agentRepository.SetAllTotalVotesToZero();
+        await _userRepository.SetAllUserVoteAsFalseAsync();
     }
 
     public async Task<Agent?> ShowVoteWinnerAsync()

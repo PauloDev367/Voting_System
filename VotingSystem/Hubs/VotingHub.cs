@@ -64,6 +64,8 @@ public class VotingHub : Hub
     {
         await _votingService.RestartVoteAsync();
         await GetTotalVotesPerAgentAsync();
+        await GetVoteInfosToClientAsync();
+        await GetVoteInformationAsync();
     }
     [Authorize(Roles = "ADMIN")]
     public async Task ShowWinnerAsync()
@@ -92,8 +94,12 @@ public class VotingHub : Hub
                         OptionVoted = request.OptionVoted.ToString(),
                     };
                     await _context.Votes.AddAsync(vote);
+                    user.Voted = true;
+                    _context.Users.Update(user);
                     await _context.SaveChangesAsync();
                     await GetTotalVotesPerAgentAsync();
+                    await GetVoteInfosToClientAsync();
+                    await GetVoteInformationAsync();
                 }
             }
         }
