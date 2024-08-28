@@ -15,14 +15,14 @@ using VotingSystem.Services;
 namespace VotingSystem.Hubs;
 
 [Authorize]
-public class AdminVotingHub : Hub
+public class VotingHub : Hub
 {
     private readonly UserManager<User> _userManager;
     private readonly AppDbContext _context;
     private readonly UserRepository _userRepository;
     private readonly VotingService _votingService;
     private readonly SystemStatusesRepository _systemStatusesRepository;
-    public AdminVotingHub(AppDbContext context, UserRepository userRepository, VotingService votingService, SystemStatusesRepository systemStatusesRepository, UserManager<User> userManager)
+    public VotingHub(AppDbContext context, UserRepository userRepository, VotingService votingService, SystemStatusesRepository systemStatusesRepository, UserManager<User> userManager)
     {
         _context = context;
         _userRepository = userRepository;

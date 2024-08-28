@@ -38,7 +38,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapHub<AdminVotingHub>("/votes/admin");
+app.MapHub<VotingHub>("/votes");
 
 app.UseAuthentication();
 app.UseAuthorization();

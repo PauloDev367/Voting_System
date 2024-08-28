@@ -166,7 +166,7 @@ export default {
     const token = window.localStorage.getItem("token");
 
     this.connection = new signalR.HubConnectionBuilder()
-      .withUrl("http://localhost:5293/votes/admin", {
+      .withUrl("http://localhost:5293/votes/", {
         accessTokenFactory: () => token,
       })
       .build();
