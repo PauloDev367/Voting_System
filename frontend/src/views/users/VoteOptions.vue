@@ -97,10 +97,10 @@ export default {
     }
   },
   methods: {
-    vote() {
+    vote(agentId) {
       const confirm = window.confirm("Deseja votar nesse representante?");
       if (confirm) {
-        alert("Enviando voto");
+        this.connection.invoke("AddVoteAsync", { OptionVoted: agentId });
       }
     },
     loadVoteData() {

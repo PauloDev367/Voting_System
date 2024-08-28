@@ -90,8 +90,7 @@ public class AdminVotingHub : Hub
     }
     public async Task AddVoteAsync(AddVoteRequest request)
     {
-        var email = Context.User?.FindFirst(JwtRegisteredClaimNames.Email)?.Value;
-
+        var email = Context.User?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
         if (email != null)
         {
             var user = await _userManager.FindByEmailAsync(email);
@@ -103,11 +102,12 @@ public class AdminVotingHub : Hub
                     var vote = new Vote
                     {
                         UserId = user.Id,
-                        OptionVoted = request.OptionVoted,
+                        AgentId = request.OptionVoted,
+                        OptionVoted = request.OptionVoted.ToString(),
                     };
                     await _context.Votes.AddAsync(vote);
                     await _context.SaveChangesAsync();
-                    await Clients.All.SendAsync("UpdateTotalVotes", _context.Votes.Count());
+                    await GetTotalVotesPerAgentAsync();
                 }
             }
         }

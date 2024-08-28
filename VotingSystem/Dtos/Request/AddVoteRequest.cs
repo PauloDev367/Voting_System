@@ -5,5 +5,5 @@ namespace VotingSystem.Dtos.Request;
 public class AddVoteRequest
 {
     [Required]
-    public string OptionVoted { get; set; }
+    public Guid OptionVoted { get; set; }
 }

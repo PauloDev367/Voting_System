@@ -54,9 +54,9 @@ public class AgentRepository
 
     public async Task<Agent?> GetMoreVotedAgentAsync()
     {
-        return _context.Agents
+        return await _context.Agents
             .OrderByDescending(a => a.Votes.Count)
             .Include(x=>x.Votes)
-            .FirstOrDefault();
+            .FirstOrDefaultAsync();
     }
 }
