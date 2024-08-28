@@ -1,84 +1,63 @@
 <template>
-  <div class="container mt-2">
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-      <button
-        class="navbar-toggler"
-        type="button"
-        data-toggle="collapse"
-        data-target="#navbarSupportedContent"
-        aria-controls="navbarSupportedContent"
-        aria-expanded="false"
-        aria-label="Toggle navigation"
-      >
-        <span class="navbar-toggler-icon"></span>
-      </button>
-
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav ml-auto">
-          <li class="nav-item active">
-            <a class="nav-link btn btn-sm btn-outline-danger" href="#">
-              <i class="fa-solid fa-right-from-bracket"></i> Logout
-            </a>
-          </li>
-        </ul>
-      </div>
-    </nav>
-  </div>
-
-  <main>
-    <div class="container">
-      <div class="row justify-content-center">
-        <div class="col-12 text-center mb-4">
-          <template v-if="voteIsOpen">
-            <h2 class="badge badge-success">Votação aberta</h2>
-          </template>
-          <template v-else>
-            <h2 class="badge badge-danger">Votação está fechada</h2>
-          </template>
-          <h1>Escolha seu representante</h1>
-        </div>
-        <div class="col-12 col-md-6">
-          <template v-if="agents.length > 0">
-            <ul>
-              <li v-for="agent in agents" :key="agent.id">
-                <span>
-                  {{ agent.agentName }} - ({{ agent.totalVotes }} votos)
-                </span>
-
-                <template v-if="voteIsOpen">
-                  <button
-                    class="btn btn-sm btn-outline-info"
-                    @click="vote(agent.agentId)"
-                  >
-                    <i class="fa-regular fa-square-check"></i>
-                  </button>
-                </template>
-                <template v-else>
-                  <span class="badge badge-danger">
-                    <i class="fa-solid fa-ban"></i> Votação finalizada
+  <LoggedLayout>
+    <main>
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-12 text-center mb-4">
+            <template v-if="voteIsOpen">
+              <h2 class="badge badge-success">Votação aberta</h2>
+            </template>
+            <template v-else>
+              <h2 class="badge badge-danger">Votação está fechada</h2>
+            </template>
+            <h1>Escolha seu representante</h1>
+          </div>
+          <div class="col-12 col-md-6">
+            <template v-if="agents.length > 0">
+              <ul>
+                <li v-for="agent in agents" :key="agent.id">
+                  <span>
+                    {{ agent.agentName }} - ({{ agent.totalVotes }} votos)
                   </span>
-                </template>
-              </li>
-            </ul>
-          </template>
-        </div>
 
-        <div class="col-12 text-center mt-4">
-          <p>
-            Um total de
-            <strong>{{ totalVotes }}</strong>
-            pessoas já votaram
-          </p>
+                  <template v-if="voteIsOpen">
+                    <button
+                      class="btn btn-sm btn-outline-info"
+                      @click="vote(agent.agentId)"
+                    >
+                      <i class="fa-regular fa-square-check"></i>
+                    </button>
+                  </template>
+                  <template v-else>
+                    <span class="badge badge-danger">
+                      <i class="fa-solid fa-ban"></i> Votação finalizada
+                    </span>
+                  </template>
+                </li>
+              </ul>
+            </template>
+          </div>
+
+          <div class="col-12 text-center mt-4">
+            <p>
+              Um total de
+              <strong>{{ totalVotes }}</strong>
+              pessoas já votaram
+            </p>
+          </div>
         </div>
       </div>
-    </div>
-  </main>
+    </main>
+  </LoggedLayout>
 </template>
 
 
 <script>
+import LoggedLayout from "../layouts/LoggedLayout.vue";
+
 export default {
   name: "VoteOptions",
+  components: { LoggedLayout },
   data() {
     return {
       connection: null,
