@@ -1,6 +1,8 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using VotingSystem.Data;
@@ -15,16 +17,18 @@ namespace VotingSystem.Hubs;
 [Authorize]
 public class AdminVotingHub : Hub
 {
+    private readonly UserManager<User> _userManager;
     private readonly AppDbContext _context;
     private readonly UserRepository _userRepository;
     private readonly VotingService _votingService;
     private readonly SystemStatusesRepository _systemStatusesRepository;
-    public AdminVotingHub(AppDbContext context, UserRepository userRepository, VotingService votingService, SystemStatusesRepository systemStatusesRepository)
+    public AdminVotingHub(AppDbContext context, UserRepository userRepository, VotingService votingService, SystemStatusesRepository systemStatusesRepository, UserManager<User> userManager)
     {
         _context = context;
         _userRepository = userRepository;
         _votingService = votingService;
         _systemStatusesRepository = systemStatusesRepository;
+        _userManager = userManager;
     }
 
     public async Task GetVoteInformationAsync()
@@ -36,7 +40,7 @@ public class AdminVotingHub : Hub
     public async Task GetTotalVotesPerAgentAsync()
     {
         var total = await _votingService.GetTotalVotesPerAgentsAsync();
-        await SendGroupMessage(total, "TotalPerAgent");
+        await Clients.All.SendAsync("TotalPerAgent", total);
     }
 
     public async Task AddNewAgent(NewAgentRequest request)
@@ -84,6 +88,31 @@ public class AdminVotingHub : Hub
 
         await _votingService.AddConnectionIdToUserAsync(userId, connectionIdCurrent);
     }
+    public async Task AddVoteAsync(AddVoteRequest request)
+    {
+        var email = Context.User?.FindFirst(JwtRegisteredClaimNames.Email)?.Value;
+
+        if (email != null)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user != null)
+            {
+                var userVote = await _context.Votes.FirstOrDefaultAsync(vt => vt.UserId.Equals(user.Id));
+                if (userVote == null)
+                {
+                    var vote = new Vote
+                    {
+                        UserId = user.Id,
+                        OptionVoted = request.OptionVoted,
+                    };
+                    await _context.Votes.AddAsync(vote);
+                    await _context.SaveChangesAsync();
+                    await Clients.All.SendAsync("UpdateTotalVotes", _context.Votes.Count());
+                }
+            }
+        }
+
+    }
 
     private async Task SendGroupMessage(object message, string method)
     {
@@ -99,4 +128,20 @@ public class AdminVotingHub : Hub
 
         await Clients.Group("AdminEnable").SendAsync(method, message);
     }
+    private async Task SendGroupOfClientsMessage(object message, string method)
+    {
+        var users = await _userRepository.GetClientsAsync();
+
+        foreach (var user in users)
+        {
+            foreach (var connId in user.HubIds)
+            {
+                await Groups.AddToGroupAsync(connId.ClientHubId, "ClientEnable");
+            }
+        }
+
+        await Clients.Group("ClientEnable").SendAsync(method, message);
+    }
+
+
 }

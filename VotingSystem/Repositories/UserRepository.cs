@@ -30,10 +30,22 @@ public class UserRepository
 
         return usersWithHubIds;
     }
+    public async Task<IList<User>> GetClientsAsync()
+    {
+        var usersInRole = await _userManager.GetUsersInRoleAsync("CLIENT");
+
+        var usersWithHubIds = usersInRole
+            .Select(user => _userManager.Users
+                .Include(u => u.HubIds)
+                .FirstOrDefault(u => u.Id == user.Id))
+            .ToList();
+
+        return usersWithHubIds;
+    }
     public async Task<User?> GetOneByIdAsync(string userId)
     {
         return await _context.Users
-            .FirstOrDefaultAsync(x=>x.Id == userId);
+            .FirstOrDefaultAsync(x => x.Id == userId);
     }
 
     public async Task AddConnectionIdToUserAsync(User user, string connectionId)
