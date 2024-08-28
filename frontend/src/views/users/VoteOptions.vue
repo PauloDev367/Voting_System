@@ -85,18 +85,28 @@ export default {
       .catch((err) => console.error("Error while starting connection: ", err));
 
     if (this.connectionActive == true) {
-      this.connection.invoke("AddConnectionIdToUser");
-      this.loadVoteData();
-      this.loadNewAgents();
-      this.loadNewVoteStatus();
-      this.loadWinner();
+      try {
+        await this.connection.invoke("AddConnectionIdToUser");
+        await this.loadVoteData();
+        this.loadNewAgents();
+        this.loadNewVoteStatus();
+        this.loadWinner();
+      } catch (error) {
+        this.check401Error();
+      }
     }
   },
   methods: {
-    vote(agentId) {
+    async vote(agentId) {
       const confirm = window.confirm("Deseja votar nesse representante?");
       if (confirm) {
-        this.connection.invoke("AddVoteAsync", { OptionVoted: agentId });
+        try {
+          await this.connection.invoke("AddVoteAsync", {
+            OptionVoted: agentId,
+          });
+        } catch (error) {
+          this.check401Error();
+        }
       }
     },
     loadWinner() {
@@ -115,22 +125,31 @@ export default {
         this.voteIsOpen = data;
       });
     },
-    loadVoteData() {
-      this.connection.invoke("GetTotalVotesPerAgentAsync");
-      this.connection.on("TotalPerAgent", (data) => {
-        this.agents = data;
-      });
-
-      this.connection.invoke("GetVoteInfosToClientAsync");
-      this.connection.on("LoadClientVoteInfo", (data) => {
-        this.totalVotes = data.totalVotes;
-        this.voteIsOpen = data.voteIsOpen;
-      });
+    async loadVoteData() {
+      try {
+        this.connection.invoke("GetTotalVotesPerAgentAsync");
+        this.connection.on("TotalPerAgent", (data) => {
+          this.agents = data;
+        });
+        await this.connection.invoke("GetVoteInfosToClientAsync");
+        this.connection.on("LoadClientVoteInfo", (data) => {
+          this.totalVotes = data.totalVotes;
+          this.voteIsOpen = data.voteIsOpen;
+        });
+      } catch (error) {
+        this.check401Error(error);
+      }
     },
     loadNewAgents() {
       this.connection.on("NewAgentRegistered", (data) => {
         this.agents.push(data);
       });
+    },
+    check401Error(err) {
+      if (err.message && err.message.includes("unauthorized")) {
+        alert("Você não tem permissão para estar aqui");
+        window.location.href = "/";
+      }
     },
   },
 };
