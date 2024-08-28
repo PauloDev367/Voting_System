@@ -87,7 +87,7 @@ export default {
     if (this.connectionActive == true) {
       try {
         await this.connection.invoke("AddConnectionIdToUser");
-        await this.loadVoteData();
+        this.loadVoteData();
         this.loadNewAgents();
         this.loadNewVoteStatus();
         this.loadWinner();
@@ -125,13 +125,13 @@ export default {
         this.voteIsOpen = data;
       });
     },
-    async loadVoteData() {
+    loadVoteData() {
       try {
         this.connection.invoke("GetTotalVotesPerAgentAsync");
         this.connection.on("TotalPerAgent", (data) => {
           this.agents = data;
         });
-        await this.connection.invoke("GetVoteInfosToClientAsync");
+        this.connection.invoke("GetVoteInfosToClientAsync");
         this.connection.on("LoadClientVoteInfo", (data) => {
           this.totalVotes = data.totalVotes;
           this.voteIsOpen = data.voteIsOpen;

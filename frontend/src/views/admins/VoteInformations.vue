@@ -234,6 +234,7 @@ export default {
     loadVotesData() {
       this.connection.invoke("GetVoteInformationAsync");
       this.connection.on("LoadSystemData", (data) => {
+        console.log(data);
         this.totalVotes = data.totalVotes;
         this.totalUsers = data.totalUsers;
         this.totalUsersThatVoted = data.totalUsersThatVoted;

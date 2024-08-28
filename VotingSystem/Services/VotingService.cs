@@ -45,6 +45,19 @@ public class VotingService
         };
         return response;
     }
+    public async Task<VotesInfoToClientResponse> GetClientInfo()
+    {
+        var users = await _context.Users.ToListAsync();
+        var totalVotes = users.Where(u => u.Voted == true).ToList().Count();;
+        var voteIsOpen = await _systemStatusesRepository.VoteIsActiveAsync();
+
+        return new VotesInfoToClientResponse
+        {
+            TotalVotes = totalVotes,
+            VoteIsOpen = voteIsOpen
+        };
+
+    }
 
     public async Task AddConnectionIdToUserAsync(string userId, string connectionId)
     {
@@ -99,16 +112,5 @@ public class VotingService
         return winner;
     }
 
-    public async Task<VotesInfoToClientResponse> GetClientInfo()
-    {
-        var totalVotes = (await _context.Votes.ToListAsync()).Count();
-        var voteIsOpen = await _systemStatusesRepository.VoteIsActiveAsync();
 
-        return new VotesInfoToClientResponse
-        {
-            TotalVotes = totalVotes,
-            VoteIsOpen = voteIsOpen
-        };
-
-    }
 }

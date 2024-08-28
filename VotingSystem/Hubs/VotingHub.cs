@@ -105,7 +105,6 @@ public class VotingHub : Hub
     {
         var data = await _votingService.GetClientInfo();
         await SendGroupOfClientsMessage(data, "LoadClientVoteInfo");
-
     }
 
     public async Task AddConnectionIdToUser()

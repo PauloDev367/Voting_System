@@ -41,22 +41,22 @@ export default {
     };
   },
   async mounted() {
-    const signalR = require("@microsoft/signalr");
+    // const signalR = require("@microsoft/signalr");
 
-    const token = window.localStorage.getItem("token");
+    // const token = window.localStorage.getItem("token");
 
-    this.connection = new signalR.HubConnectionBuilder()
-      .withUrl("http://localhost:5293/votes/", {
-        accessTokenFactory: () => token,
-      })
-      .build();
+    // this.connection = new signalR.HubConnectionBuilder()
+    //   .withUrl("http://localhost:5293/votes/", {
+    //     accessTokenFactory: () => token,
+    //   })
+    //   .build();
 
-    await this.connection
-      .start()
-      .then(() => {
-        this.connectionActive = true;
-      })
-      .catch((err) => console.error("Error while starting connection: ", err));
+    // await this.connection
+    //   .start()
+    //   .then(() => {
+    //     this.connectionActive = true;
+    //   })
+    //   .catch((err) => console.error("Error while starting connection: ", err));
   },
   methods: {
     logoutUser() {
