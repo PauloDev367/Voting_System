@@ -110,6 +110,7 @@ export default {
       this.loadVoteData();
       this.loadNewAgents();
       this.loadNewVoteStatus();
+      this.loadWinner();
     }
   },
   methods: {
@@ -118,6 +119,17 @@ export default {
       if (confirm) {
         this.connection.invoke("AddVoteAsync", { OptionVoted: agentId });
       }
+    },
+    loadWinner() {
+      this.connection.on("WinnerSelected", (winner) => {
+        alert(
+          "Ganhador buscado" +
+            winner.agentName +
+            " com um total de " +
+            winner.totalVotes +
+            " votos"
+        );
+      });
     },
     loadNewVoteStatus() {
       this.connection.on("VoteStatusChanged", (data) => {
