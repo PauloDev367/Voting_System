@@ -72,8 +72,8 @@ export default {
                   window.location.href = "/vote";
                 }
               })
-              .catch((err) => {
-                console.log(err);
+              .catch(() => {
+                alert("Erro ao tentar fazer login");
               });
           })
           .catch((error) => {
