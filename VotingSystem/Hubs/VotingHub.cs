@@ -28,49 +28,44 @@ public class VotingHub : Hub
         _systemStatusesRepository = systemStatusesRepository;
         _userManager = userManager;
     }
-
+    [Authorize(Roles = "ADMIN")]
     public async Task GetVoteInformationAsync()
     {
         var response = await _votingService.GetSystemOverviewAsync();
         await SendGroupMessage(response, "LoadSystemData");
     }
-
-    public async Task GetTotalVotesPerAgentAsync()
-    {
-        var total = await _votingService.GetTotalVotesPerAgentsAsync();
-        await Clients.All.SendAsync("TotalPerAgent", total);
-    }
-
+    [Authorize(Roles = "ADMIN")]
     public async Task AddNewAgent(NewAgentRequest request)
     {
         var agent = await _votingService.AddNewAgentAsync(request.AgentName);
         var response = new VotesPerAgentResponse(agent);
         await Clients.All.SendAsync("NewAgentRegistered", response);
     }
-
+    [Authorize(Roles = "ADMIN")]
     public async Task RemoveAgentAsync(string agentId)
     {
         await _votingService.RemoveAgentAsync(new Guid(agentId));
         await GetTotalVotesPerAgentAsync();
     }
-
+    [Authorize(Roles = "ADMIN")]
     public async Task OpenVoteAsync()
     {
         await _systemStatusesRepository.ChangeVoteStatusAsync(true);
         await Clients.All.SendAsync("VoteStatusChanged", true);
     }
+    [Authorize(Roles = "ADMIN")]
     public async Task StopVoteAsync()
     {
         await _systemStatusesRepository.ChangeVoteStatusAsync(false);
         await Clients.All.SendAsync("VoteStatusChanged", false);
     }
-
+    [Authorize(Roles = "ADMIN")]
     public async Task RestartVoteAsync()
     {
         await _votingService.RestartVoteAsync();
         await GetTotalVotesPerAgentAsync();
     }
-
+    [Authorize(Roles = "ADMIN")]
     public async Task ShowWinnerAsync()
     {
         var winner = await _votingService.ShowVoteWinnerAsync();
@@ -78,14 +73,7 @@ public class VotingHub : Hub
             await Clients.All.SendAsync("WinnerSelected", new VotesPerAgentResponse(winner));
     }
 
-    public async Task AddConnectionIdToUser()
-    {
-        var connectionIdCurrent = Context.ConnectionId;
-        var userClaims = Context.User;
-        var userId = userClaims.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-        await _votingService.AddConnectionIdToUserAsync(userId, connectionIdCurrent);
-    }
+    [Authorize(Roles = "CLIENT")]
     public async Task AddVoteAsync(AddVoteRequest request)
     {
         var email = Context.User?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
@@ -112,6 +100,7 @@ public class VotingHub : Hub
 
     }
 
+    [Authorize(Roles = "CLIENT")]
     public async Task GetVoteInfosToClientAsync()
     {
         var data = await _votingService.GetClientInfo();
@@ -119,6 +108,14 @@ public class VotingHub : Hub
 
     }
 
+    public async Task AddConnectionIdToUser()
+    {
+        var connectionIdCurrent = Context.ConnectionId;
+        var userClaims = Context.User;
+        var userId = userClaims.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        await _votingService.AddConnectionIdToUserAsync(userId, connectionIdCurrent);
+    }
     public async Task Logout()
     {
         var email = Context.User?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
@@ -132,6 +129,12 @@ public class VotingHub : Hub
             }
         }
     }
+    public async Task GetTotalVotesPerAgentAsync()
+    {
+        var total = await _votingService.GetTotalVotesPerAgentsAsync();
+        await Clients.All.SendAsync("TotalPerAgent", total);
+    }
+
     private async Task SendGroupMessage(object message, string method)
     {
         var users = await _userRepository.GetAdminsAsync();
@@ -160,6 +163,5 @@ public class VotingHub : Hub
 
         await Clients.Group("ClientEnable").SendAsync(method, message);
     }
-
 
 }
