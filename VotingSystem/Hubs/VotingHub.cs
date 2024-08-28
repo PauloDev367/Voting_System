@@ -1,6 +1,4 @@
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
@@ -118,7 +116,21 @@ public class VotingHub : Hub
     {
         var data = await _votingService.GetClientInfo();
         await SendGroupOfClientsMessage(data, "LoadClientVoteInfo");
-    
+
+    }
+
+    public async Task Logout()
+    {
+        var email = Context.User?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+        if (email != null)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user != null)
+            {
+                await _userRepository.RemoveUserConnectionIdAsync(user);
+                await Clients.Caller.SendAsync("LogoutUser", "Usuário desconectado");
+            }
+        }
     }
     private async Task SendGroupMessage(object message, string method)
     {

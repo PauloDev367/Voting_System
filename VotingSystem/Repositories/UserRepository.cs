@@ -60,4 +60,11 @@ public class UserRepository
         _context.Users.Update(user);
         await _context.SaveChangesAsync();
     }
+
+    public async Task RemoveUserConnectionIdAsync(User user)
+    {
+        user.HubIds.RemoveAll(hb => hb.ClientHubId == user.Id);
+        _context.Users.Update(user);
+        await _context.SaveChangesAsync();
+    }
 }
