@@ -1,6 +1,10 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using VotingSystem.Dtos.Request;
+using VotingSystem.Dtos.Responses;
+using VotingSystem.Entities;
 using VotingSystem.Services;
 
 namespace VotingSystem.Controllers;
@@ -9,7 +13,12 @@ namespace VotingSystem.Controllers;
 public class AuthController : ControllerBase
 {
     private IdentityService _identityService;
-    public AuthController(IdentityService identityService) => _identityService = identityService;
+    private readonly UserManager<User> _userManager;
+    public AuthController(IdentityService identityService, UserManager<User> userManager)
+    {
+        _identityService = identityService;
+        _userManager = userManager;
+    }
 
     [HttpPost("cadastro")]
     public async Task<IActionResult> Register(UserRegisterRequest request)
@@ -40,10 +49,20 @@ public class AuthController : ControllerBase
         return Unauthorized(resultado);
     }
 
-    [HttpGet]
+    [HttpGet("me")]
     [Authorize]
-    public async Task<IActionResult> Get()
+    public async Task<IActionResult> Me()
     {
-        return Ok("Rota normal");
+        var email = User.FindFirstValue(ClaimTypes.Email);
+        if (email != null)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user != null)
+            {
+                return Ok(new SimpleUserResponse(user, _userManager));
+            }
+        }
+
+        return Unauthorized();
     }
 }

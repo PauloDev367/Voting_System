@@ -11,12 +11,24 @@
               <form @submit.prevent="login">
                 <div class="form-group">
                   <label for="email">E-mail:</label>
-                  <input type="email" v-model="email" class="form-control" id="email" aria-describedby="emailHelp"
-                    placeholder="Enter email">
+                  <input
+                    type="email"
+                    v-model="email"
+                    class="form-control"
+                    id="email"
+                    aria-describedby="emailHelp"
+                    placeholder="Enter email"
+                  />
                 </div>
                 <div class="form-group">
                   <label for="senha">Senha:</label>
-                  <input type="password" v-model="password" class="form-control" id="senha" placeholder="Password">
+                  <input
+                    type="password"
+                    v-model="password"
+                    class="form-control"
+                    id="senha"
+                    placeholder="Password"
+                  />
                 </div>
 
                 <div class="text-right">
@@ -32,33 +44,46 @@
 </template>
 
 <script>
-
-import { login } from '@/services/user.js';
+import { getUserInfo, login } from "@/services/user.js";
 export default {
   data() {
     return {
-      email: '',
-      password: ''
-    }
+      email: "",
+      password: "",
+    };
   },
-  name: 'HomeView',
+  name: "HomeView",
 
   methods: {
     login() {
-      if (this.email == '' || this.password == '') {
+      if (this.email == "" || this.password == "") {
         alert("É preciso informar o e-mail e a senha");
       } else {
-        login(this.email, this.password).then((response) => {
-          window.localStorage.setItem("token", response.data.token);
-          window.location.href = "/vote"
-        }).catch((error) => {
-          alert("Erro ao tentar fazer login");
-          console.log('Erro:', error);
-        });
+        login(this.email, this.password)
+          .then((response) => {
+            window.localStorage.setItem("token", response.data.token);
+            getUserInfo()
+              .then((result) => {
+                const data = result.data;
+                window.localStorage.setItem("user", JSON.stringify(data));
+                if (data.role.includes("ADMIN")) {
+                  window.location.href = "/admin/vote";
+                } else {
+                  window.location.href = "/vote";
+                }
+              })
+              .catch((err) => {
+                console.log(err);
+              });
+          })
+          .catch((error) => {
+            alert("Erro ao tentar fazer login");
+            console.log("Erro:", error);
+          });
       }
-    }
+    },
   },
-}
+};
 </script>
 
 <style scoped>
