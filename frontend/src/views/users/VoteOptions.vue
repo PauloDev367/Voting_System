@@ -29,7 +29,12 @@
     <div class="container">
       <div class="row justify-content-center">
         <div class="col-12 text-center mb-4">
-          <h2 class="badge badge-success">Votação aberta</h2>
+          <template v-if="voteIsOpen">
+            <h2 class="badge badge-success">Votação aberta</h2>
+          </template>
+          <template v-else>
+            <h2 class="badge badge-danger">Votação está fechada</h2>
+          </template>
           <h1>Escolha seu representante</h1>
         </div>
         <div class="col-12 col-md-6">
@@ -39,12 +44,20 @@
                 <span>
                   {{ agent.agentName }} - ({{ agent.totalVotes }} votos)
                 </span>
-                <button
-                  class="btn btn-sm btn-outline-info"
-                  @click="vote(agent.agentId)"
-                >
-                  <i class="fa-regular fa-square-check"></i>
-                </button>
+
+                <template v-if="voteIsOpen">
+                  <button
+                    class="btn btn-sm btn-outline-info"
+                    @click="vote(agent.agentId)"
+                  >
+                    <i class="fa-regular fa-square-check"></i>
+                  </button>
+                </template>
+                <template v-else>
+                  <span class="badge badge-danger">
+                    <i class="fa-solid fa-ban"></i> Votação finalizada
+                  </span>
+                </template>
               </li>
             </ul>
           </template>
@@ -53,7 +66,7 @@
         <div class="col-12 text-center mt-4">
           <p>
             Um total de
-            <strong>123</strong>
+            <strong>{{ totalVotes }}</strong>
             pessoas já votaram
           </p>
         </div>
@@ -70,6 +83,8 @@ export default {
     return {
       connection: null,
       agents: [],
+      voteIsOpen: false,
+      totalVotes: 0,
     };
   },
   async mounted() {
@@ -94,6 +109,7 @@ export default {
       this.connection.invoke("AddConnectionIdToUser");
       this.loadVoteData();
       this.loadNewAgents();
+      this.loadNewVoteStatus();
     }
   },
   methods: {
@@ -103,10 +119,21 @@ export default {
         this.connection.invoke("AddVoteAsync", { OptionVoted: agentId });
       }
     },
+    loadNewVoteStatus() {
+      this.connection.on("VoteStatusChanged", (data) => {
+        this.voteIsOpen = data;
+      });
+    },
     loadVoteData() {
       this.connection.invoke("GetTotalVotesPerAgentAsync");
       this.connection.on("TotalPerAgent", (data) => {
         this.agents = data;
+      });
+
+      this.connection.invoke("GetVoteInfosToClientAsync");
+      this.connection.on("LoadClientVoteInfo", (data) => {
+        this.totalVotes = data.totalVotes;
+        this.voteIsOpen = data.voteIsOpen;
       });
     },
     loadNewAgents() {

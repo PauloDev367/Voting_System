@@ -14,8 +14,8 @@ public class VotesPerAgentResponse
 
     public VotesPerAgentResponse(Agent agent)
     {
-        this.TotalVotes = agent.Votes.Count;
-        this.AgentName = agent.Name;
-        this.AgentId = agent.Id;
+        TotalVotes = agent.Votes.Count;
+        AgentName = agent.Name;
+        AgentId = agent.Id;
     }
 }

@@ -114,6 +114,12 @@ public class VotingHub : Hub
 
     }
 
+    public async Task GetVoteInfosToClientAsync()
+    {
+        var data = await _votingService.GetClientInfo();
+        await SendGroupOfClientsMessage(data, "LoadClientVoteInfo");
+    
+    }
     private async Task SendGroupMessage(object message, string method)
     {
         var users = await _userRepository.GetAdminsAsync();

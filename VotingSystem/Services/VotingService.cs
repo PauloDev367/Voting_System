@@ -98,4 +98,17 @@ public class VotingService
         var winner = await _agentRepository.GetMoreVotedAgentAsync();
         return winner;
     }
+
+    public async Task<VotesInfoToClientResponse> GetClientInfo()
+    {
+        var totalVotes = (await _context.Votes.ToListAsync()).Count();
+        var voteIsOpen = await _systemStatusesRepository.VoteIsActiveAsync();
+
+        return new VotesInfoToClientResponse
+        {
+            TotalVotes = totalVotes,
+            VoteIsOpen = voteIsOpen
+        };
+
+    }
 }
