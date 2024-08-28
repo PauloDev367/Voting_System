@@ -101,7 +101,7 @@
         <div class="col-12 text-center">
           <p class="mt-5">
             Um total de
-            <strong>{{ totalVotes }}</strong>
+            <strong>{{ totalUsersThatVoted }}</strong>
             pessoas já votaram
           </p>
         </div>
@@ -227,7 +227,6 @@ export default {
         if (this.voteStatus == false) {
           this.connection.invoke("ShowWinnerAsync");
           this.connection.on("WinnerSelected", (winner) => {
-            console.log(winner);
             alert(
               "Ganhador buscado" +
                 winner.agentName +
