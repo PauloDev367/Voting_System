@@ -70,7 +70,3 @@ This project follows the Conventional Commits specification to maintain consiste
 | build    | :package:             | `:package:`             |
 | ci       | :construction_worker: | `:construction_worker:` |
 | chore    | :wrench:              | `:wrench:`              |
-
----
-
-Essa versão é mais clara e organizada, além de seguir boas práticas de documentação para projetos de software.
