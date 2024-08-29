@@ -20,7 +20,7 @@ public class AuthController : ControllerBase
         _userManager = userManager;
     }
 
-    [HttpPost("cadastro")]
+    [HttpPost("register")]
     public async Task<IActionResult> Register(UserRegisterRequest request)
     {
         if (!ModelState.IsValid)
