@@ -120,6 +120,7 @@ public class VotingHub : Hub
         var userId = userClaims.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
         await _votingService.AddConnectionIdToUserAsync(userId, connectionIdCurrent);
+        await GetVoteInformationAsync();
     }
     public async Task Logout()
     {
@@ -130,7 +131,9 @@ public class VotingHub : Hub
             if (user != null)
             {
                 await _userRepository.RemoveUserConnectionIdAsync(user);
+                await _userRepository.LogoutUser(user);
                 await Clients.Caller.SendAsync("LogoutUser", "Usuário desconectado");
+                await GetVoteInformationAsync();
             }
         }
     }

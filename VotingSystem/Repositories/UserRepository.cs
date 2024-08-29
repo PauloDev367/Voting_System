@@ -67,6 +67,12 @@ public class UserRepository
         _context.Users.Update(user);
         await _context.SaveChangesAsync();
     }
+    public async Task LogoutUser(User user)
+    {
+        user.IsOnline = false;
+        _context.Users.Update(user);
+        await _context.SaveChangesAsync();
+    }
     public async Task SetAllUserVoteAsFalseAsync()
     {
         var users = await _context.Users.ToListAsync();
